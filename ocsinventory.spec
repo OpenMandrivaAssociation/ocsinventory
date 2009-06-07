@@ -44,6 +44,7 @@ Requires:	apache-mod_php
 Requires:	php-mysql
 Requires:	php-xml
 Requires:	php-zip
+Requires:	php-db
 Obsoletes:  ocsng-linux-server
 
 %description reports
@@ -65,18 +66,17 @@ rm -rf  %{buildroot}
 install -d -m 755 %{buildroot}%{_datadir}/ocsinventory
 cp -pr ocsreports %{buildroot}%{_datadir}/ocsinventory
 
-install -d -m 755 %{buildroot}%{_sysconfdir}/ocsinventory
-install -d -m 755 %{buildroot}%{_sysconfdir}/ocsinventory/ocsinventory-reports
-cat >%{buildroot}%{_sysconfdir}/ocsinventory/ocsinventory-reports/dbconfig.inc.php<<'EOF'
-<?php
-$_SESSION["SERVEUR_SQL"]="";
-$_SESSION["COMPTE_BASE"]="ocs";
-$_SESSION["PSWD_BASE"]="ocs";
-?>
-EOF
 
 cd Apache
 %makeinstall_std
+
+install -d -m 755 %{buildroot}%{_sysconfdir}/ocsinventory
+install -d -m 755 %{buildroot}%{_sysconfdir}/ocsinventory/ocsinventory-reports
+mv %{buildroot}%{_datadir}/ocsinventory/ocsreports/dbconfig.inc.php \
+    %{buildroot}%{_sysconfdir}/ocsinventory/ocsinventory-reports/dbconfig.inc.php
+pushd %{buildroot}%{_datadir}/ocsinventory/ocsreports
+ln -s ../../../..%{_sysconfdir}/ocsinventory/ocsinventory-reports/dbconfig.inc.php .
+popd
 
 install -d %{buildroot}%{_localstatedir}/log/ocsinventory-server
 
