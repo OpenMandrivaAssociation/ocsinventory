@@ -100,7 +100,7 @@ perl -pi \
 perl -pi \
     -e 's|OCSREPORTS_ALIAS|/ocsinventory-reports|;' \
     -e 's|PATH_TO_OCSREPORTS_DIR|%{_datadir}/ocsinventory/ocsreports|;' \
-    -e 's|PACKAGES_ALIAS|/ocsinventory-reports/download|;' \
+    -e 's|PACKAGES_ALIAS|/ocsinventory-download|;' \
     -e 's|PATH_TO_PACKAGES_DIR|%{_localstatedir}/lib/ocsinventory-reports/download|;' \
     %{buildroot}%{_webappconfdir}/ocsinventory-reports.conf 
 
