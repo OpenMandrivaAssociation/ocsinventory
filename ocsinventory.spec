@@ -2,7 +2,7 @@
 
 Name:		ocsinventory
 Version:	1.02.1
-Release:	%mkrel 1
+Release:	%mkrel 2
 Summary:	Open Computer and Software Inventory Next Generation
 License:	GPL
 Group:		System/Servers
@@ -44,7 +44,6 @@ Requires:	apache-mod_php
 Requires:	php-mysql
 Requires:	php-xml
 Requires:	php-zip
-Requires:	php-db
 Obsoletes:  ocsng-linux-server
 
 %description reports
