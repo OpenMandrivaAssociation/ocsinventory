@@ -2,7 +2,7 @@
 
 Name:		ocsinventory
 Version:	1.02.1
-Release:	%mkrel 2
+Release:	%mkrel 3
 Summary:	Open Computer and Software Inventory Next Generation
 License:	GPL
 Group:		System/Servers
@@ -31,6 +31,9 @@ Group:      System/Servers
 Summary:    Communication server
 Requires:	apache-mod_perl
 Requires:	perl(Apache::DBI)
+Requires:   perl-DBD-mysql
+Requires:   perl-Net-IP
+Requires:   perl-SOAP-Lite
 Obsoletes:  ocsng-linux-server
 
 %description server
