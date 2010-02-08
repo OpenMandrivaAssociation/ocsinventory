@@ -1,18 +1,19 @@
 %define _requires_exceptions pear(dbconfig.inc.php)\\|pear(composants.php)\\|pear(dico.php)
+%define schema_version 1.3
 
 Name:		ocsinventory
-Version:	1.02.2
+Version:	1.3
 Release:	%mkrel 1
 Summary:	Open Computer and Software Inventory Next Generation
 License:	GPL
 Group:		System/Servers
-URL:		http://ocsinventory.sourceforge.net/
-Source0:	http://downloads.sourceforge.net/ocsinventory/OCSNG_UNIX_SERVER-%{version}.tar.gz
-Source6:	README.urpmi.server
-Source7:	ocsng-server-rotate
-Patch1:		apache_config.patch
-BuildRequires:	rpm-helper >= 0.16
-BuildRequires:	rpm-mandriva-setup >= 1.23
+URL:		http://www.ocsinventory-ng.org/ 
+Source0:	http://launchpad.net/ocsinventory-server/stable-1.3/server-release-1.3/+download/OCSNG_UNIX_SERVER-%{version}.tar.gz
+Patch0:     ocsinventory-schema.patch 
+%if %mdkversion < 201010
+Requires(post):   rpm-helper
+Requires(postun):   rpm-helper
+%endif
 BuildArch:  noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 
@@ -55,50 +56,79 @@ administrators to query the database server through their favorite browser.
 
 %prep
 %setup -q -n OCSNG_UNIX_SERVER-%{version}
+%patch0 -p0
+
+perl -pi -e 's/SCHEMA_VERSION/%{schema_version}/' ocsreports/index.php
 
 %build
 cd Apache
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 
-
 %install
 rm -rf  %{buildroot}
 
-install -d -m 755 %{buildroot}%{_datadir}/ocsinventory
-cp -pr ocsreports %{buildroot}%{_datadir}/ocsinventory
 
+# ocsinventory-server
 
-cd Apache
-%makeinstall_std
+pushd Apache
+make pure_install PERL_INSTALL_ROOT=%{buildroot}
+find %{buildroot} -type f -name .packlist -exec rm -f {} ';'
+find %{buildroot} -type d -depth -exec rmdir {} 2>/dev/null ';' 
 
-install -d -m 755 %{buildroot}%{_sysconfdir}/ocsinventory
-install -d -m 755 %{buildroot}%{_sysconfdir}/ocsinventory/ocsinventory-reports
-mv %{buildroot}%{_datadir}/ocsinventory/ocsreports/dbconfig.inc.php \
-    %{buildroot}%{_sysconfdir}/ocsinventory/ocsinventory-reports/dbconfig.inc.php
-pushd %{buildroot}%{_datadir}/ocsinventory/ocsreports
-ln -s ../../../..%{_sysconfdir}/ocsinventory/ocsinventory-reports/dbconfig.inc.php .
+# To avoid bad dependency on perl(mod_perl)
+rm -f %{buildroot}%{perl_vendorlib}/Apache/Ocsinventory/Server/Modperl1.pm 
+
 popd
 
-install -d %{buildroot}%{_localstatedir}/log/ocsinventory-server
+install -d -m 755 %{buildroot}%{_localstatedir}/log/ocsinventory-server
 
-install -d %{buildroot}%{_sysconfdir}/logrotate.d
+install -d -m 755 %{buildroot}%{_sysconfdir}/logrotate.d
 cat > %{buildroot}%{_sysconfdir}/logrotate.d/ocsinventory-server<<EOF
 /var/log/ocsinventory-server/*.log {
     missingok
 }
 EOF
 
-# apache configuration
-install -d -m 755 %{buildroot}%{_webappconfdir}
-install -m 644 etc/ocsinventory/ocsinventory-reports.conf %{buildroot}%{_webappconfdir}
-install -m 644 etc/ocsinventory/ocsinventory-server.conf %{buildroot}%{_webappconfdir}
-
+install -d -m 755 %{buildroot}%{webappconfdir}
+install -m 644 etc/ocsinventory/ocsinventory-server.conf \
+    %{buildroot}%{webappconfdir}
 perl -pi \
+    -e 's|DATABASE_SERVER|localhost|;' \
+    -e 's|DATABASE_PORT|3306|;' \
     -e 's|VERSION_MP|2|;' \
     -e 's|PATH_TO_LOG_DIRECTORY|%{_localstatedir}/log/ocsinventory-server|;' \
     %{buildroot}%{_webappconfdir}/ocsinventory-server.conf 
 
+# --- ocsinventory-reports
+
+install -d -m 755 %{buildroot}%{_datadir}/ocsinventory
+cp -pr ocsreports %{buildroot}%{_datadir}/ocsinventory
+
+install -d -m 755 %{buildroot}%{_localstatedir}/lib/ocsinventory-reports
+install -d -m 755 %{buildroot}%{_localstatedir}/lib/ocsinventory-reports/download
+install -d -m 755 %{buildroot}%{_localstatedir}/lib/ocsinventory-reports/ipd
+
+install -m 755 binutils/ipdiscover-util.pl %{buildroot}%{_datadir}/ocsinventory/ocsreports/ipdiscover-util.pl 
+
+install -d -m 755 %{buildroot}%{_sysconfdir}/ocsinventory
+install -d -m 755 %{buildroot}%{_sysconfdir}/ocsinventory/ocsreports
+
+cat >%{buildroot}%{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php <<'EOF'
+<?php
+$_SESSION["SERVEUR_SQL"]="";
+$_SESSION["COMPTE_BASE"]="ocs";
+$_SESSION["PSWD_BASE"]="ocs";
+?>
+EOF
+echo "0" >%{buildroot}%{_sysconfdir}/ocsinventory/ocsreports/schema
+pushd %{buildroot}%{_datadir}/ocsinventory/ocsreports
+ln -s ../../../..%{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php .
+ln -s ../../../..%{_sysconfdir}/ocsinventory/ocsreports/schema .
+popd
+    
+install -m 644 etc/ocsinventory/ocsinventory-reports.conf \
+    %{buildroot}%{webappconfdir}
 perl -pi \
     -e 's|OCSREPORTS_ALIAS|/ocsinventory-reports|;' \
     -e 's|PATH_TO_OCSREPORTS_DIR|%{_datadir}/ocsinventory/ocsreports|;' \
@@ -106,38 +136,40 @@ perl -pi \
     -e 's|PATH_TO_PACKAGES_DIR|%{_localstatedir}/lib/ocsinventory-reports/download|;' \
     %{buildroot}%{_webappconfdir}/ocsinventory-reports.conf 
 
-install -d -m 755 %{buildroot}%{_datadir}/ocsinventory/bin
-install -m 755 binutils/*.pl %{buildroot}%{_datadir}/ocsinventory/bin
-
-install -d -m 755 %{buildroot}%{_localstatedir}/lib/ocsinventory-reports
-install -d -m 755 %{buildroot}%{_localstatedir}/lib/ocsinventory-reports/download
-
 %post server
+%if %mdkversion < 201010
 %_post_webapp
+%endif
 
 %post reports
+%if %mdkversion < 201010
 %_post_webapp
+%endif
 
 %postun server
+%if %mdkversion < 201010
 %_postun_webapp
+%endif
 
 %postun reports
+%if %mdkversion < 201010
 %_postun_webapp
+%endif
 
 %clean
 rm -rf %{buildroot}
 
 %files server
 %defattr(-,root,root)
-%doc README LICENSE.txt ChangeLog
+%doc README LICENSE.txt Apache/Changes
 %{perl_vendorlib}/Apache
-%attr(-,apache,apache) %{_var}/log/ocsinventory-server
-%config(noreplace) %{_sysconfdir}/httpd/conf/webapps.d/ocsinventory-server.conf
+%attr(-,apache,apache) %{_localstatedir}/log/ocsinventory-server
+%config(noreplace) %{webappconfdir}/ocsinventory-server.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/ocsinventory-server
 
 %files reports
-%doc README LICENSE.txt ChangeLog
-%config(noreplace) %{_sysconfdir}/httpd/conf/webapps.d/ocsinventory-reports.conf
+%doc README LICENSE.txt
 %{_datadir}/ocsinventory
+%config(noreplace) %{webappconfdir}/ocsinventory-reports.conf
 %config(noreplace) %{_sysconfdir}/ocsinventory
 %attr(-,apache,apache) %{_localstatedir}/lib/ocsinventory-reports
