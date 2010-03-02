@@ -165,5 +165,5 @@ rm -rf %{buildroot}
 %config(noreplace) %{webappconfdir}/ocsinventory-reports.conf
 %dir %{_sysconfdir}/ocsinventory
 %dir %{_sysconfdir}/ocsinventory/ocsreports
-%attr(640,apache,apache) %config(noreplace) %{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php
+%attr(660,root,apache) %config(noreplace) %{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php
 %attr(-,apache,apache) %{_localstatedir}/lib/ocsinventory-reports
