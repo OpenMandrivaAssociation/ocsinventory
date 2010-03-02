@@ -2,7 +2,7 @@
 %define schema_version 1.3
 
 Name:		ocsinventory
-Version:	1.3
+Version:	1.3.1
 Release:	%mkrel 1
 Summary:	Open Computer and Software Inventory Next Generation
 License:	GPL
@@ -70,7 +70,6 @@ rm -rf  %{buildroot}
 
 
 # ocsinventory-server
-
 pushd Apache
 make pure_install PERL_INSTALL_ROOT=%{buildroot}
 find %{buildroot} -type f -name .packlist -exec rm -f {} ';'
@@ -114,19 +113,12 @@ install -m 755 binutils/ipdiscover-util.pl %{buildroot}%{_datadir}/ocsinventory/
 install -d -m 755 %{buildroot}%{_sysconfdir}/ocsinventory
 install -d -m 755 %{buildroot}%{_sysconfdir}/ocsinventory/ocsreports
 
-cat >%{buildroot}%{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php <<'EOF'
-<?php
-$_SESSION["SERVEUR_SQL"]="";
-$_SESSION["COMPTE_BASE"]="ocs";
-$_SESSION["PSWD_BASE"]="ocs";
-?>
-EOF
-echo "0" >%{buildroot}%{_sysconfdir}/ocsinventory/ocsreports/schema
+mv %{buildroot}%{_datadir}/ocsinventory/ocsreports/dbconfig.inc.php \
+    %{buildroot}%{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php
 pushd %{buildroot}%{_datadir}/ocsinventory/ocsreports
-ln -s ../../../..%{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php .
-ln -s ../../../..%{_sysconfdir}/ocsinventory/ocsreports/schema .
+ln -s ../../../../%{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php .
 popd
-    
+
 install -m 644 etc/ocsinventory/ocsinventory-reports.conf \
     %{buildroot}%{webappconfdir}
 perl -pi \
@@ -171,5 +163,7 @@ rm -rf %{buildroot}
 %doc README LICENSE.txt
 %{_datadir}/ocsinventory
 %config(noreplace) %{webappconfdir}/ocsinventory-reports.conf
-%config(noreplace) %{_sysconfdir}/ocsinventory
+%dir %{_sysconfdir}/ocsinventory
+%dir %{_sysconfdir}/ocsinventory/ocsreports
+%attr(640,apache,apache) %config(noreplace) %{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php
 %attr(-,apache,apache) %{_localstatedir}/lib/ocsinventory-reports
