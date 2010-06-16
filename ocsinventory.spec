@@ -2,14 +2,13 @@
 %define schema_version 1.3
 
 Name:		ocsinventory
-Version:	1.3.1
+Version:	1.3.2
 Release:	%mkrel 1
 Summary:	Open Computer and Software Inventory Next Generation
 License:	GPL
 Group:		System/Servers
 URL:		http://www.ocsinventory-ng.org/ 
 Source0:	http://launchpad.net/ocsinventory-server/stable-1.3/server-release-1.3/+download/OCSNG_UNIX_SERVER-%{version}.tar.gz
-Patch0:     ocsinventory-schema.patch 
 %if %mdkversion < 201010
 Requires(post):   rpm-helper
 Requires(postun):   rpm-helper
@@ -56,7 +55,6 @@ administrators to query the database server through their favorite browser.
 
 %prep
 %setup -q -n OCSNG_UNIX_SERVER-%{version}
-%patch0 -p0
 
 perl -pi -e 's/SCHEMA_VERSION/%{schema_version}/' ocsreports/index.php
 
