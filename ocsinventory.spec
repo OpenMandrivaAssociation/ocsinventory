@@ -2,7 +2,7 @@
 %define schema_version 1.3
 
 Name:		ocsinventory
-Version:	1.3.2
+Version:	1.3.3
 Release:	%mkrel 1
 Summary:	Open Computer and Software Inventory Next Generation
 License:	GPL
