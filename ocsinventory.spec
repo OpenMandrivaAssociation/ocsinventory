@@ -1,8 +1,8 @@
 %define _requires_exceptions pear(dbconfig.inc.php)\\|pear(composants.php)\\|pear(dico.php)
-%define schema_version 1.3
+%define schema_version 2.0
 
 Name:		ocsinventory
-Version:	1.3.3
+Version:	2.0.1
 Release:	%mkrel 1
 Summary:	Open Computer and Software Inventory Next Generation
 License:	GPL
