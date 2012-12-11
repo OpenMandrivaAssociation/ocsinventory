@@ -1,20 +1,21 @@
+%if %{_use_internal_dependency_generator}
+%define __noautoreq 'pear\\(dbconfig.inc.php\\)|pear\\(composants.php\\)|pear\\(dico.php\\)'
+%else
 %define _requires_exceptions pear(dbconfig.inc.php)\\|pear(composants.php)\\|pear(dico.php)
+%endif
+
 %define schema_version 2.0
 
 Name:		ocsinventory
-Version:	2.0.5
-Release:	%mkrel 1
+Version:	2.0.3
+Release:	2
 Summary:	Open Computer and Software Inventory Next Generation
 License:	GPL
 Group:		System/Servers
 URL:		http://www.ocsinventory-ng.org/ 
 Source0:	http://launchpad.net/ocsinventory-server/stable-1.3/server-release-1.3/+download/OCSNG_UNIX_SERVER-%{version}.tar.gz
-%if %mdkversion < 201010
-Requires(post):   rpm-helper
-Requires(postun):   rpm-helper
-%endif
+BuildRequires: perl-devel
 BuildArch:  noarch
-BuildRoot:	%{_tmppath}/%{name}-%{version}
 
 %description
 Open Computer and Software Inventory Next Generation is an application
@@ -64,9 +65,6 @@ cd Apache
 %make
 
 %install
-rm -rf  %{buildroot}
-
-
 # ocsinventory-server
 pushd Apache
 make pure_install PERL_INSTALL_ROOT=%{buildroot}
@@ -126,28 +124,6 @@ perl -pi \
     -e 's|PATH_TO_PACKAGES_DIR|%{_localstatedir}/lib/ocsinventory-reports/download|;' \
     %{buildroot}%{_webappconfdir}/ocsinventory-reports.conf 
 
-%post server
-%if %mdkversion < 201010
-%_post_webapp
-%endif
-
-%post reports
-%if %mdkversion < 201010
-%_post_webapp
-%endif
-
-%postun server
-%if %mdkversion < 201010
-%_postun_webapp
-%endif
-
-%postun reports
-%if %mdkversion < 201010
-%_postun_webapp
-%endif
-
-%clean
-rm -rf %{buildroot}
 
 %files server
 %defattr(-,root,root)
@@ -165,3 +141,77 @@ rm -rf %{buildroot}
 %dir %{_sysconfdir}/ocsinventory/ocsreports
 %attr(660,root,apache) %config(noreplace) %{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php
 %attr(-,apache,apache) %{_localstatedir}/lib/ocsinventory-reports
+
+
+%changelog
+* Wed Nov 30 2011 Sergey Zhemoitel <serg@mandriva.org> 2.0.3-1mdv2012.0
++ Revision: 735761
+- add new release 2.0.3
+
+* Wed Nov 16 2011 Sergey Zhemoitel <serg@mandriva.org> 2.0.2-1
++ Revision: 730815
+- new release 2.0.2
+
+* Mon Oct 17 2011 Sergey Zhemoitel <serg@mandriva.org> 2.0.1-1
++ Revision: 704957
+- new version 2.0.1
+
+* Sat Nov 27 2010 Guillaume Rousse <guillomovitch@mandriva.org> 1.3.3-1mdv2011.0
++ Revision: 601849
+- new version
+
+* Wed Jun 16 2010 Oden Eriksson <oeriksson@mandriva.com> 1.3.2-1mdv2010.1
++ Revision: 548135
+- 1.3.2
+- drop one upstream added patch
+
+  + Guillaume Rousse <guillomovitch@mandriva.org>
+    - perms for configuration files more consistent with other packages
+
+* Tue Mar 02 2010 Guillaume Rousse <guillomovitch@mandriva.org> 1.3.1-1mdv2010.1
++ Revision: 513563
+- new version
+- improved schema patch
+- ensure configuration file is writable by apache
+
+* Mon Feb 08 2010 Guillaume Rousse <guillomovitch@mandriva.org> 1.3-1mdv2010.1
++ Revision: 502468
+- new version
+- rely on filetrigger for reloading apache configuration begining with 2010.1, rpm-helper macros otherwise
+- drop useless sources
+
+* Mon Feb 01 2010 Oden Eriksson <oeriksson@mandriva.com> 1.02.2-1mdv2010.1
++ Revision: 499186
+- 1.02.2
+
+* Tue Nov 24 2009 Anne Nicolas <ennael@mandriva.org> 1.02.1-3mdv2010.1
++ Revision: 469641
+- Fix missing requires (#55941)
+
+* Thu Jun 25 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.02.1-2mdv2010.0
++ Revision: 389024
+- fix invalid php-db dependency
+
+* Sun Jun 07 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.02.1-1mdv2010.0
++ Revision: 383469
+- fix download alias
+- add php-gd dependency
+- symlink ocsreports configuration file to proper place
+- package renaming
+- new version
+- drop client (packaged distinctly) and doc (not distributed anymore)
+- sanitized package names
+- drop ipdiscover binary to keep the package noarch
+- spec cleanup
+
+* Fri Dec 21 2007 Olivier Blin <blino@mandriva.org> 1.0-0.3mdv2008.1
++ Revision: 136634
+- restore BuildRoot
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - kill re-definition of %%buildroot on Pixel's request
+
+* Mon Jun 25 2007 Oden Eriksson <oeriksson@mandriva.com> 1.0-0.3mdv2008.0
++ Revision: 43837
+- fix deps
+
