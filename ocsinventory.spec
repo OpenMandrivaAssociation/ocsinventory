@@ -8,7 +8,7 @@
 
 Name:		ocsinventory
 Version:	2.0.3
-Release:	2
+Release:	3
 Summary:	Open Computer and Software Inventory Next Generation
 License:	GPL
 Group:		System/Servers
