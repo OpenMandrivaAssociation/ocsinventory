@@ -8,7 +8,7 @@
 
 Name:		ocsinventory
 Version:	2.0.3
-Release:	3
+Release:	4
 Summary:	Open Computer and Software Inventory Next Generation
 License:	GPL
 Group:		System/Servers
@@ -87,9 +87,9 @@ cat > %{buildroot}%{_sysconfdir}/logrotate.d/ocsinventory-server<<EOF
 }
 EOF
 
-install -d -m 755 %{buildroot}%{webappconfdir}
+install -d -m 755 %{buildroot}%{_webappconfdir}
 install -m 644 etc/ocsinventory/ocsinventory-server.conf \
-    %{buildroot}%{webappconfdir}
+    %{buildroot}%{_webappconfdir}
 perl -pi \
     -e 's|DATABASE_SERVER|localhost|;' \
     -e 's|DATABASE_PORT|3306|;' \
@@ -118,7 +118,7 @@ ln -s ../../../../%{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php .
 popd
 
 install -m 644 etc/ocsinventory/ocsinventory-reports.conf \
-    %{buildroot}%{webappconfdir}
+    %{buildroot}%{_webappconfdir}
 perl -pi \
     -e 's|OCSREPORTS_ALIAS|/ocsinventory-reports|;' \
     -e 's|PATH_TO_OCSREPORTS_DIR|%{_datadir}/ocsinventory/ocsreports|;' \
@@ -132,13 +132,13 @@ perl -pi \
 %doc README LICENSE.txt Apache/Changes
 %{perl_vendorlib}/Apache
 %attr(-,apache,apache) %{_localstatedir}/log/ocsinventory-server
-%config(noreplace) %{webappconfdir}/ocsinventory-server.conf
+%config(noreplace) %{_webappconfdir}/ocsinventory-server.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/ocsinventory-server
 
 %files reports
 %doc README LICENSE.txt
 %{_datadir}/ocsinventory
-%config(noreplace) %{webappconfdir}/ocsinventory-reports.conf
+%config(noreplace) %{_webappconfdir}/ocsinventory-reports.conf
 %dir %{_sysconfdir}/ocsinventory
 %dir %{_sysconfdir}/ocsinventory/ocsreports
 %attr(660,root,apache) %config(noreplace) %{_sysconfdir}/ocsinventory/ocsreports/dbconfig.inc.php
