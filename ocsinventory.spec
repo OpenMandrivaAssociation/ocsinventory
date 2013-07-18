@@ -14,6 +14,7 @@ License:	GPL
 Group:		System/Servers
 URL:		http://www.ocsinventory-ng.org/ 
 Source0:	http://launchpad.net/ocsinventory-server/stable-1.3/server-release-1.3/+download/OCSNG_UNIX_SERVER-%{version}.tar.gz
+Patch0:		ocsinventory-2.0.3-apache_2.4.patch
 BuildRequires: perl-devel
 BuildArch:  noarch
 
@@ -56,6 +57,7 @@ administrators to query the database server through their favorite browser.
 
 %prep
 %setup -q -n OCSNG_UNIX_SERVER-%{version}
+%patch0 -p1
 
 perl -pi -e 's/SCHEMA_VERSION/%{schema_version}/' ocsreports/index.php
 

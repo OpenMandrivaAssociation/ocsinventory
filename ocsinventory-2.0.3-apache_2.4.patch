@@ -1,0 +1,36 @@
+diff -Naur OCSNG_UNIX_SERVER-2.0.3.orig/etc/ocsinventory/ocsinventory-reports.conf OCSNG_UNIX_SERVER-2.0.3/etc/ocsinventory/ocsinventory-reports.conf
+--- OCSNG_UNIX_SERVER-2.0.3.orig/etc/ocsinventory/ocsinventory-reports.conf	2013-07-18 14:15:13.173136218 +0400
++++ OCSNG_UNIX_SERVER-2.0.3/etc/ocsinventory/ocsinventory-reports.conf	2013-07-18 14:31:46.009877361 +0400
+@@ -24,8 +24,7 @@
+ 
+ <Directory PATH_TO_OCSREPORTS_DIR>
+     # By default, users can use console from everywhere
+-    Order deny,allow
+-    Allow from all
++    Require all granted
+     Options Indexes FollowSymLinks
+     DirectoryIndex index.php
+     AllowOverride Options
+diff -Naur OCSNG_UNIX_SERVER-2.0.3.orig/etc/ocsinventory/ocsinventory-server.conf OCSNG_UNIX_SERVER-2.0.3/etc/ocsinventory/ocsinventory-server.conf
+--- OCSNG_UNIX_SERVER-2.0.3.orig/etc/ocsinventory/ocsinventory-server.conf	2013-07-18 14:15:13.173136218 +0400
++++ OCSNG_UNIX_SERVER-2.0.3/etc/ocsinventory/ocsinventory-server.conf	2013-07-18 14:32:20.002997453 +0400
+@@ -285,8 +285,7 @@
+   # "Virtual" directory for handling OCS Inventory NG agents communications
+   # Be careful, do not create such directory into your web server root document !
+   <Location /ocsinventory>
+-	order deny,allow
+-	allow from all
++        Require all granted
+ 	# If you protect this area you have to deal with http_auth_* agent's parameters
+ 	# AuthType Basic
+ 	# AuthName "OCS Inventory agent area"
+@@ -304,8 +303,7 @@
+         PerlHandler "Apache::Ocsinventory::SOAP"
+         
+         # By default, you can query web service from everywhere with a valid user
+-        Order deny,allow
+-        Allow from all
++        Require all granted
+        	AuthType Basic
+ 	AuthName "OCS Inventory SOAP Area"
+ 	# Use htpasswd to create/update soap-user (or another granted user)
