@@ -15,6 +15,7 @@ Group:		System/Servers
 URL:		https://www.ocsinventory-ng.org/ 
 Source0:	http://launchpad.net/ocsinventory-server/stable-1.3/server-release-1.3/+download/OCSNG_UNIX_SERVER-%{version}.tar.gz
 Patch0:		ocsinventory-2.0.3-apache_2.4.patch
+BuildRequires:	make
 BuildRequires: perl-devel
 BuildArch:  noarch
 
